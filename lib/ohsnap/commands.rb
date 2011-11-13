@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'sqlite3'
 
+require 'search'
+
 module OhSnap
   module Commands
     def init(args, opts)
@@ -29,6 +31,10 @@ module OhSnap
       SQLite3::Database.new("meta.db") do |db|
         db.execute("SELECT name FROM tag ORDER BY name") { |name| puts name }
       end.close
+    end
+
+    def search(args, opts)
+      
     end
   end
 end
