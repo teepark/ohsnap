@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+require 'ohsnap'
+
+options = {}
+OptionParser.new do |opts|
+  opts.on("-d", "--directory", "=REPOSITORY",
+            "repository to operate on") do |dir|
+    options[:repo] = dir
+  end
+end.parse!
+options[:repo] = Dir.pwd if options[:repo].nil?
+
+OhSnap::Commands.send(ARGV.shift, ARGV)

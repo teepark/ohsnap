@@ -1,4 +1,3 @@
-require 'optparse'
 begin
   require 'sqlite3'
 rescue LoadError
@@ -16,16 +15,16 @@ end
 
 module OhSnap
   module Commands
-    def self.init(args, opts)
+    def self.init(args)
       if File.exist?("meta.db")
         STDERR.write("OhSnap! meta.db already exists!")
         exit 78
       end
-      if Dir.directory?("original")
+      if File.exist?("original")
         STDERR.write("OhSnap! original directory already exists!")
         exit 78
       end
-      if Dir.directory?("retouched")
+      if File.exist?("retouched")
         STDERR.write("OhSnap! retouched directory already exists!")
         exit 78
       end
@@ -38,13 +37,13 @@ module OhSnap
       Dir.mkdir("retouched")
     end
 
-    def self.tags(args, opts)
+    def self.tags(args)
       SQLite3::Database.open("meta.db") do |db|
         db.execute("SELECT name FROM tag ORDER BY name") { |name| puts name }
       end
     end
 
-    def self.search(args, opts)
+    def self.search(args)
       specs = []
       parser = OptionParser.new do |opts|
         opts.on("-t", "--tags", "=SEARCH_SPEC",
@@ -67,7 +66,6 @@ module OhSnap
           specs << [OhSnap::Search::TYPE, spec]
         end
       end
-
       parser.parse(args)
 
       SQLite3::Database.open("meta.db") do |db|
