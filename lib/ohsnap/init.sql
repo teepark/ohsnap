@@ -1,15 +1,19 @@
+-- one row for every photo
 CREATE TABLE photo (
 	id       INTEGER PRIMARY KEY,
-	location BLOB NOT NULL
+	date TEXT NOT NULL;
+	hash BLOB NOT NULL
 );
-CREATE UNIQUE INDEX photo_location on photo(location);
+CREATE UNIQUE INDEX photo_location on photo(hash, date);
 
+-- a row for every unique tag
 CREATE TABLE tag (
 	id   INTEGER PRIMARY KEY,
 	name TEXT NOT NULL
 );
 CREATE UNIQUE INDEX tag_name on tag(name);
 
+-- join table for photo/tag; one per tag of a photo
 CREATE TABLE photo_tag (
 	photo INTEGER NOT NULL,
 	tag   INTEGER NOT NULL,
@@ -19,6 +23,7 @@ CREATE TABLE photo_tag (
 CREATE INDEX photo_tag_photo on photo_tag(photo);
 CREATE INDEX photo_tag_tag on photo_tag(tag);
 
+-- one row for the original and each retouched version
 CREATE TABLE photo_representation (
 	photo    INTEGER NOT NULL,
 	original INTEGER NOT NULL, --used as bool for original/retouched
@@ -29,6 +34,7 @@ CREATE TABLE photo_representation (
 );
 CREATE INDEX repr_photo_orig on photo_representation(photo, original);
 
+-- one row for every key/value pair in each photo's EXIF data
 CREATE TABLE exif_info (
 	photo INTEGER NOT NULL,
 	key   BLOB NOT NULL,
