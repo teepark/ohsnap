@@ -5,6 +5,8 @@ module OhSnap
     TYPE = 3
 
     def self.run(db, specs)
+      return [] if specs.empty?
+
       stmt = "SELECT id FROM photo WHERE 1=#{specs[0][1][0,1] == "+" ? 0 : 1}"
       params = []
       specs.each do |pair|
