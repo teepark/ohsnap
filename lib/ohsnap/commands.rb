@@ -5,13 +5,8 @@ rescue LoadError
   require 'sqlite3'
 end
 
-begin
-  require 'ohsnap'
-  require 'ohsnap/search'
-rescue LoadError
-#TODO: knock out this conditional require once we're in business as a gem
-  require 'search'
-end
+require 'ohsnap/search'
+require 'ohsnap/photos'
 
 module OhSnap
   module Commands
