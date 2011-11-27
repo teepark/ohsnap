@@ -64,7 +64,7 @@ module OhSnap
       parser.parse(args)
 
       SQLite3::Database.open("meta.db") do |db|
-        OhSnap::Search.run(db, specs)
+        puts OhSnap::Search.run(db, specs).inspect
       end
     end
   end
