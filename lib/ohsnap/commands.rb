@@ -67,5 +67,39 @@ module OhSnap
         puts OhSnap::Search.run(db, specs).inspect
       end
     end
+
+    def self.import(args)
+      #TODO: get exit codes right
+      if args.empty?
+        STDERR.write("OhSnap! missing a directory\n")
+        exit(1)
+      end
+      unless File.directory?(args[0])
+        STDERR.write("OhSnap! #{args[0]} isn't a directory\n")
+        exit(1)
+      end
+
+      tags = []
+      imported = 0
+      Dir.glob("#{args[0]}/*").each do |path|
+        if File.directory?(path)
+          tags << path[args[0].size + 1..-1]
+        else
+          OhSnap::Photos.import(path)
+          imported += 1
+        end
+      end
+
+      tags.each do |tag|
+        Dir.glob("#{args[0]}/#{tag}/*").each do |path|
+          if File.file?(path)
+            OhSnap::Photos.import(path)
+            imported += 1
+          end
+        end
+      end
+
+      puts "imported #{imported} photos"
+    end
   end
 end
