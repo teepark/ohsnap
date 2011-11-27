@@ -1,7 +1,7 @@
 -- one row for every photo
 CREATE TABLE photo (
 	id       INTEGER PRIMARY KEY,
-	date TEXT NOT NULL;
+	date TEXT NOT NULL,
 	hash BLOB NOT NULL
 );
 CREATE UNIQUE INDEX photo_location on photo(hash, date);
