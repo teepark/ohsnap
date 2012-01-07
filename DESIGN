@@ -1,0 +1,80 @@
+repository layout
+=================
+
+* meta.db
+    a sqlite3 file with all the repository metadata. pretty much all
+    commands start here and get locations in the following directions
+    from this database.
+
+* original -- top-level dir
+    a repository folder of the original formats (generally NEF or JPEG
+    from a digital camera, TIFF or JPEG from a film scanner or CD from a
+    lab). images here have just a SHA1 hash of their contents as
+    filenames, with the proper extension.
+
+* retouched -- top-level dir
+    a repository folder of retouched versions of originals. images here
+    have the hash of the *original*, a dash, and an additional short
+    number as their filenames, with the appropriate suffix.
+
+both original and retouched contain folders with two-character names,
+these are the first two characters of their SHAs, the filenames inside
+have the rest of the SHAs.
+
+
+metadata
+========
+
+* photo table
+    * single row for every distinct photo
+
+* photo_representation table
+    * row for every original photo, and one for every retouched version
+
+* exif_info table
+    * row for every key/value pair of exif data in an original
+    * relation to photo, not to representation
+
+* tag table
+    * row for every (lowercased) tag in use
+    * many-many relation through photo_tag to photo
+
+
+commands
+========
+
+* -d <dir>, --directory=<dir>
+    * use the specified directory as the ohsnap repo, defaults to cwd
+    * global; available to all commands
+
+init
+----
+
+creates meta.db and establishes the schema, makes original and retouched
+directories. if any of meta.db, original, or retouched already exists,
+fails with error message.
+
+import
+------
+
+* required positional argument: source directory
+* -r [<depth>], --recursive[=<depth>]
+    * also traverse subdirectories
+    * with <depth> (an int), don't traverse deeper than this
+    * default depth is unlimited
+
+grab all the images of known types from the source directory and bring
+them into the repo.
+
+search
+------
+
+* -t <spec>, --tags=<spec>
+    * search by the tags for a photo
+* -e <spec>, --extension=<spec>
+    * search by the file extension
+* -x <kv-spec>, --exif=<kv-spec>
+    * search by exif key/values
+
+a <spec> is an ordered set of names prefixed by '+', '-', or '&'. Each
+item is processed in order

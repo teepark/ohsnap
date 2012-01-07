@@ -3,6 +3,7 @@ module OhSnap
     TAG = 1
     ORIGINAL = 2
     TYPE = 3
+    EXIF = 4
 
     def self.run(db, specs)
       return [] if specs.empty?
@@ -16,7 +17,10 @@ module OhSnap
         params += args
       end
 
-      db.prepare(stmt).execute(*params)
+      stmt = db.prepare(stmt)
+      result = stmt.execute(*params).to_a
+      stmt.close
+      result
     end
 
     def self.spec_to_selects(selector, spec)
@@ -37,6 +41,8 @@ module OhSnap
                    original_select(piece)
                  when TYPE
                    type_select(piece)
+                 when EXIF
+                   exif_select(piece)
                  end
         args = select[1..-1]
         select = select[0]
@@ -55,17 +61,12 @@ module OhSnap
     end
 
     def self.type_select(piece)
-      type = case piece.upcase
-             when "RAW"
-               0
-             when "NEF"
-               0
-             when "JPG"
-               1
-             when "JPEG"
-               1
-             end
-      ["SELECT distinct photo FROM photo_representation WHERE type = ?", type]
+      ["SELECT DISTINCT photo FROM photo_representation WHERE type = ?",
+        DiskPhoto.type_from_extension(piece)]
+    end
+
+    def self.exif_select(piece)
+      ["SELECT DISTINCT photo FROM exif_info WHERE key = ? AND value = ?", piece]
     end
   end
 end

@@ -5,12 +5,27 @@ require 'optparse'
 require 'ohsnap'
 
 options = {}
-OptionParser.new do |opts|
+parser = OptionParser.new do |opts|
   opts.on("-d", "--directory", "=REPOSITORY",
             "repository to operate on") do |dir|
     options[:repo] = dir
   end
-end.parse!
+end
+
+args = ARGV[0..-1]
+i = 0
+args.each do |arg|
+  break if OhSnap::Commands.respond_to?(arg)
+  i += 1
+end
+args = args[0..i]
+
+parser.parse(args)
 options[:repo] = Dir.pwd if options[:repo].nil?
+
+unless OhSnap::Commands.respond_to?(ARGV[0])
+  STDERR.write("OhSnap! \"#{ARGV[0]}\" ain't no command I ever heard of\n")
+  exit(1)
+end
 
 OhSnap::Commands.send(ARGV.shift, ARGV)
