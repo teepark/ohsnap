@@ -68,6 +68,15 @@ module OhSnap
       end
     end
 
+    def self.status(args)
+      SQLite3::Database.open("meta.db") do |db|
+        photos = db.execute("SELECT count(*) FROM photo").first[0]
+        reprs = db.execute("SELECT count(*) from photo_representation").first[0]
+        puts "#{reprs} representations of #{photos} photos"
+        puts `du -hs original retouched`
+      end
+    end
+
     def self.search(args)
       specs = []
       parser = OptionParser.new do |opts|
@@ -108,6 +117,14 @@ module OhSnap
 
       SQLite3::Database.open("meta.db") do |db|
         puts OhSnap::Search.run(db, specs).inspect
+      end
+    end
+
+    def self.list_all(args)
+      SQLite3::Database.open("meta.db") do |db|
+        db.execute("select hash from photo order by date").each do |row|
+          puts row.first
+        end
       end
     end
 
@@ -234,6 +251,7 @@ EOSQL
           # insert the photo_representations for the retouches
           photo[:retouched].each do |path|
             type = DiskPhoto.new(path).filetype
+            next unless type
             exif = get_exif(path)
             exifhash = {}
             exif.each { |k, v| exifhash[k] = v }

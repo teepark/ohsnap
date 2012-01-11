@@ -23,6 +23,11 @@ args = args[0..i]
 parser.parse(args)
 options[:repo] = Dir.pwd if options[:repo].nil?
 
+if ARGV.size == 0
+  OhSnap::Commands.status(nil)
+  exit(0)
+end
+
 unless OhSnap::Commands.respond_to?(ARGV[0])
   STDERR.write("OhSnap! \"#{ARGV[0]}\" ain't no command I ever heard of\n")
   exit(1)
